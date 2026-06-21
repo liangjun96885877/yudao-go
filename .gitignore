@@ -20,3 +20,6 @@
 .idea/
 .vscode/
 .DS_Store
+
+# 项目说明(白名单,覆盖 /*.md)
+!/README.md
