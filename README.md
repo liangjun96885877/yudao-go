@@ -8,6 +8,12 @@
 - [`yudao-ui-admin-vue3/`](./yudao-ui-admin-vue3) — 原版 Vue3 前端 fork,加 Axelor 风格 myerp 视图
 - [`tools/`](./tools) — OpenTelemetry Java agent(BPM 混合架构用)
 
+![产品 EAV 动态属性 + Axelor 风格详情 + chatter 业务时间线](./screenshots/product-attr-layout-check.png)
+
+> 一张图同时展示三大能力:**myerp EAV 动态属性表单**(品牌 select、屏幕尺寸 number+单位)、
+> **Axelor 风格 List-Detail**(顶部返回 + 标题 + 删除/保存工具栏)、
+> **chatter 业务时间线**(字段 diff 自动展示:名称/采购价/销售价/库存 旧值→新值)。
+
 ---
 
 ## 一、为什么把后端换成 Go
