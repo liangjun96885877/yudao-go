@@ -1,0 +1,20 @@
+import request from '@/config/axios'
+
+// {{.Table.ClassComment}} API（由代码生成器生成 · 树表）
+export const {{.Table.ClassName}}Api = {
+  // 查询{{.Table.ClassComment}}列表（树形）
+  getList: (params: any) =>
+    request.get({ url: '/{{.Table.ModuleName}}/{{.Table.BusinessName}}/list', params }),
+  // 查询{{.Table.ClassComment}}详情
+  get: (id: number) =>
+    request.get({ url: '/{{.Table.ModuleName}}/{{.Table.BusinessName}}/get?id=' + id }),
+  // 新增{{.Table.ClassComment}}
+  create: (data: any) =>
+    request.post({ url: '/{{.Table.ModuleName}}/{{.Table.BusinessName}}/create', data }),
+  // 修改{{.Table.ClassComment}}
+  update: (data: any) =>
+    request.put({ url: '/{{.Table.ModuleName}}/{{.Table.BusinessName}}/update', data }),
+  // 删除{{.Table.ClassComment}}
+  delete: (id: number) =>
+    request.delete({ url: '/{{.Table.ModuleName}}/{{.Table.BusinessName}}/delete?id=' + id })
+}

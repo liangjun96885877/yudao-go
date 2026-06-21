@@ -1,0 +1,28 @@
+app:
+  name: yudao-go
+  env: local            # local | dev | prod
+
+server:
+  port: 48090
+  mode: debug           # debug | release
+
+database:
+  dsn: "root:123456@tcp(127.0.0.1:13306)/yudao_go?charset=utf8mb4&parseTime=True&loc=Local"
+  maxOpenConns: 100
+  maxIdleConns: 20
+  connMaxLifetimeSec: 3600
+  slowThresholdMs: 200
+
+redis:
+  addr: "127.0.0.1:16381"
+  password: ""
+  db: 0
+
+eventbus:
+  type: redis           # inproc | redis（Redis Streams 分布式总线）
+  workers: 8
+  bufferSize: 1024
+
+websocket:
+  enable: true
+  path: /infra/ws

@@ -1,0 +1,22 @@
+# 父级 monorepo .gitignore —— 只上传 yudao-go / yudao-ui-admin-vue3 / tools 三个目录,
+# 其余无关子目录与本机临时文件全部排除。
+
+# 其它无关子目录(不上传)
+/centrifugo/
+/ruoyi-vue-pro/
+/yudao-boot-mini/
+/.playwright-mcp/
+
+# 本机开发临时文件
+/*.png
+/*.log
+/*.md
+/upload-to-github.*
+
+# 嵌套 git 备份(临时重命名的旧 .git)
+**/.git.bak/
+
+# IDE / 系统
+.idea/
+.vscode/
+.DS_Store

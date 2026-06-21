@@ -1,0 +1,106 @@
+// Package rest 由代码生成器生成：{{.Table.ClassComment}}的 HTTP 接口。
+package rest
+
+import (
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
+	"yudao-go/internal/framework/orm"
+	"yudao-go/internal/framework/web"
+	"yudao-go/internal/module/{{.Table.ModuleName}}/model"
+	"yudao-go/internal/module/system/repo"
+)
+
+// {{.Table.ClassName}}Handler 提供{{.Table.ClassComment}}的 CRUD 接口。
+type {{.Table.ClassName}}Handler struct {
+	repo *repo.CRUD[model.{{.Table.ClassName}}]
+}
+
+func New{{.Table.ClassName}}Handler(tx *orm.TxManager) *{{.Table.ClassName}}Handler {
+	return &{{.Table.ClassName}}Handler{repo: repo.NewCRUD[model.{{.Table.ClassName}}](tx)}
+}
+
+// Register 注册路由。
+func (h *{{.Table.ClassName}}Handler) Register(g *gin.RouterGroup) {
+	g.GET("/{{.Table.ModuleName}}/{{.Table.BusinessName}}/page", h.page)
+	g.GET("/{{.Table.ModuleName}}/{{.Table.BusinessName}}/get", h.get)
+	g.POST("/{{.Table.ModuleName}}/{{.Table.BusinessName}}/create", h.create)
+	g.PUT("/{{.Table.ModuleName}}/{{.Table.BusinessName}}/update", h.update)
+	g.DELETE("/{{.Table.ModuleName}}/{{.Table.BusinessName}}/delete", h.del)
+}
+
+// page 分页查询。
+func (h *{{.Table.ClassName}}Handler) page(c *gin.Context) {
+	var p web.PageParam
+	_ = c.ShouldBindQuery(&p)
+	list, total, err := h.repo.Page(c.Request.Context(), p.Offset(), p.Limit(),
+		func(q *gorm.DB) *gorm.DB {
+		{{- range .QueryColumns}}
+			if v := c.Query("{{.JavaField}}"); v != "" {
+				{{if eq .ListOperationCondition "LIKE"}}q = q.Where("{{.ColumnName}} LIKE ?", "%"+v+"%"){{else}}q = q.Where("{{.ColumnName}} = ?", v){{end}}
+			}
+		{{- end}}
+			return q.Order("id DESC")
+		})
+	if err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	web.Success(c, web.NewPageResult(list, total))
+}
+
+// get 按主键查询。
+func (h *{{.Table.ClassName}}Handler) get(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Query("id"), 10, 64)
+	m, err := h.repo.Get(c.Request.Context(), id)
+	if err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	web.Success(c, m)
+}
+
+// create 新增。
+func (h *{{.Table.ClassName}}Handler) create(c *gin.Context) {
+	var m model.{{.Table.ClassName}}
+	if err := c.ShouldBindJSON(&m); err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	if err := h.repo.Create(c.Request.Context(), &m); err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	web.Success(c, m.{{export .PK.JavaField}})
+}
+
+// update 修改。
+func (h *{{.Table.ClassName}}Handler) update(c *gin.Context) {
+	var m model.{{.Table.ClassName}}
+	if err := c.ShouldBindJSON(&m); err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	err := h.repo.UpdateFields(c.Request.Context(), m.{{export .PK.JavaField}}, map[string]any{
+	{{- range .UpdateColumns}}
+		"{{.ColumnName}}": m.{{export .JavaField}},
+	{{- end}}
+	})
+	if err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	web.Success(c, true)
+}
+
+// del 删除。
+func (h *{{.Table.ClassName}}Handler) del(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Query("id"), 10, 64)
+	if err := h.repo.SoftDelete(c.Request.Context(), []int64{id}); err != nil {
+		web.FailErr(c, err)
+		return
+	}
+	web.Success(c, true)
+}

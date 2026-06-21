@@ -1,0 +1,102 @@
+<!-- [[.Table.ClassComment]]管理（由代码生成器生成 · 树表） -->
+<template>
+  <ContentWrap>
+    <el-form :model="queryParams" :inline="true">
+      [[- range .QueryColumns]]
+      <el-form-item label="[[.ColumnComment]]">
+        <el-input v-model="queryParams.[[.JavaField]]" placeholder="请输入[[.ColumnComment]]" clearable @keyup.enter="getList" />
+      </el-form-item>
+      [[- end]]
+      <el-form-item>
+        <el-button @click="getList">搜索</el-button>
+        <el-button type="primary" @click="openForm()">新增</el-button>
+      </el-form-item>
+    </el-form>
+  </ContentWrap>
+
+  <ContentWrap>
+    <el-table
+      v-loading="loading"
+      :data="list"
+      row-key="[[.PK.JavaField]]"
+      default-expand-all
+    >
+      [[- range .ListColumns]]
+      <el-table-column label="[[.ColumnComment]]" prop="[[.JavaField]]" />
+      [[- end]]
+      <el-table-column label="操作" width="180">
+        <template #default="scope">
+          <el-button link type="primary" @click="openForm(scope.row)">编辑</el-button>
+          <el-button link type="primary" @click="openForm({ [[if .TreeParentCol]][[.TreeParentCol.JavaField]][[else]]parentId[[end]]: scope.row.[[.PK.JavaField]] })">新增下级</el-button>
+          <el-button link type="danger" @click="handleDelete(scope.row.[[.PK.JavaField]])">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </ContentWrap>
+
+  <el-dialog v-model="dialogVisible" :title="formData.[[.PK.JavaField]] ? '修改[[.Table.ClassComment]]' : '新增[[.Table.ClassComment]]'" width="600">
+    <el-form :model="formData" label-width="110px">
+      [[- range .CreateColumns]]
+      <el-form-item label="[[.ColumnComment]]">
+        [[- if eq .HtmlType "datetime"]]
+        <el-date-picker v-model="formData.[[.JavaField]]" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择[[.ColumnComment]]" />
+        [[- else if eq .HtmlType "textarea"]]
+        <el-input v-model="formData.[[.JavaField]]" type="textarea" placeholder="请输入[[.ColumnComment]]" />
+        [[- else]]
+        <el-input v-model="formData.[[.JavaField]]" placeholder="请输入[[.ColumnComment]]" />
+        [[- end]]
+      </el-form-item>
+      [[- end]]
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="submitForm">确 定</el-button>
+      <el-button @click="dialogVisible = false">取 消</el-button>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup lang="ts">
+import { [[.Table.ClassName]]Api } from '@/api/[[.Table.ModuleName]]/[[.Table.BusinessName]]'
+import { handleTree } from '@/utils/tree'
+
+defineOptions({ name: '[[.Table.ClassName]]' })
+
+const loading = ref(false)
+const list = ref<any[]>([])
+const queryParams = reactive<any>({})
+const dialogVisible = ref(false)
+const formData = ref<any>({})
+
+/** 查询列表并构建树 */
+const getList = async () => {
+  loading.value = true
+  try {
+    const data = await [[.Table.ClassName]]Api.getList(queryParams)
+    list.value = handleTree(data, '[[.PK.JavaField]]', '[[if .TreeParentCol]][[.TreeParentCol.JavaField]][[else]]parentId[[end]]')
+  } finally {
+    loading.value = false
+  }
+}
+/** 打开表单 */
+const openForm = (row?: any) => {
+  formData.value = row ? { ...row } : {}
+  dialogVisible.value = true
+}
+/** 提交表单 */
+const submitForm = async () => {
+  if (formData.value.[[.PK.JavaField]]) {
+    await [[.Table.ClassName]]Api.update(formData.value)
+  } else {
+    await [[.Table.ClassName]]Api.create(formData.value)
+  }
+  dialogVisible.value = false
+  getList()
+}
+/** 删除 */
+const handleDelete = async (id: number) => {
+  await [[.Table.ClassName]]Api.delete(id)
+  getList()
+}
+
+onMounted(getList)
+</script>

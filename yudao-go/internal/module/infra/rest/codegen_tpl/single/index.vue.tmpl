@@ -1,0 +1,117 @@
+<!-- [[.Table.ClassComment]]管理（由代码生成器生成） -->
+<template>
+  <ContentWrap>
+    <el-form :model="queryParams" :inline="true">
+      [[- range .QueryColumns]]
+      <el-form-item label="[[.ColumnComment]]">
+        <el-input v-model="queryParams.[[.JavaField]]" placeholder="请输入[[.ColumnComment]]" clearable @keyup.enter="handleQuery" />
+      </el-form-item>
+      [[- end]]
+      <el-form-item>
+        <el-button @click="handleQuery">搜索</el-button>
+        <el-button @click="resetQuery">重置</el-button>
+        <el-button type="primary" @click="openForm()">新增</el-button>
+      </el-form-item>
+    </el-form>
+  </ContentWrap>
+
+  <ContentWrap>
+    <el-table v-loading="loading" :data="list">
+      [[- range .ListColumns]]
+      <el-table-column label="[[.ColumnComment]]" prop="[[.JavaField]]" />
+      [[- end]]
+      <el-table-column label="操作" width="160">
+        <template #default="scope">
+          <el-button link type="primary" @click="openForm(scope.row)">编辑</el-button>
+          <el-button link type="danger" @click="handleDelete(scope.row.[[.PK.JavaField]])">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <Pagination
+      :total="total"
+      v-model:page="queryParams.pageNo"
+      v-model:limit="queryParams.pageSize"
+      @pagination="getList"
+    />
+  </ContentWrap>
+
+  <el-dialog v-model="dialogVisible" :title="formType === 'create' ? '新增[[.Table.ClassComment]]' : '修改[[.Table.ClassComment]]'" width="600">
+    <el-form :model="formData" label-width="110px">
+      [[- range .CreateColumns]]
+      <el-form-item label="[[.ColumnComment]]">
+        [[- if eq .HtmlType "datetime"]]
+        <el-date-picker v-model="formData.[[.JavaField]]" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择[[.ColumnComment]]" />
+        [[- else if eq .HtmlType "textarea"]]
+        <el-input v-model="formData.[[.JavaField]]" type="textarea" placeholder="请输入[[.ColumnComment]]" />
+        [[- else]]
+        <el-input v-model="formData.[[.JavaField]]" placeholder="请输入[[.ColumnComment]]" />
+        [[- end]]
+      </el-form-item>
+      [[- end]]
+    </el-form>
+    <template #footer>
+      <el-button type="primary" @click="submitForm">确 定</el-button>
+      <el-button @click="dialogVisible = false">取 消</el-button>
+    </template>
+  </el-dialog>
+</template>
+
+<script setup lang="ts">
+import { [[.Table.ClassName]]Api } from '@/api/[[.Table.ModuleName]]/[[.Table.BusinessName]]'
+
+defineOptions({ name: '[[.Table.ClassName]]' })
+
+const loading = ref(false)
+const list = ref<any[]>([])
+const total = ref(0)
+const queryParams = reactive<any>({ pageNo: 1, pageSize: 10 })
+const dialogVisible = ref(false)
+const formType = ref('create')
+const formData = ref<any>({})
+
+/** 查询列表 */
+const getList = async () => {
+  loading.value = true
+  try {
+    const data = await [[.Table.ClassName]]Api.getPage(queryParams)
+    list.value = data.list
+    total.value = data.total
+  } finally {
+    loading.value = false
+  }
+}
+const handleQuery = () => {
+  queryParams.pageNo = 1
+  getList()
+}
+const resetQuery = () => {
+  Object.keys(queryParams).forEach((k) => {
+    if (k !== 'pageNo' && k !== 'pageSize') queryParams[k] = undefined
+  })
+  handleQuery()
+}
+
+/** 打开表单 */
+const openForm = (row?: any) => {
+  formType.value = row ? 'update' : 'create'
+  formData.value = row ? { ...row } : {}
+  dialogVisible.value = true
+}
+/** 提交表单 */
+const submitForm = async () => {
+  if (formType.value === 'create') {
+    await [[.Table.ClassName]]Api.create(formData.value)
+  } else {
+    await [[.Table.ClassName]]Api.update(formData.value)
+  }
+  dialogVisible.value = false
+  getList()
+}
+/** 删除 */
+const handleDelete = async (id: number) => {
+  await [[.Table.ClassName]]Api.delete(id)
+  getList()
+}
+
+onMounted(getList)
+</script>

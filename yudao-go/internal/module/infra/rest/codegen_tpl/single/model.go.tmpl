@@ -1,0 +1,14 @@
+// Package model 由代码生成器生成。
+package model
+{{if .NeedTime}}
+import "time"
+{{end}}
+// {{.Table.ClassName}} 对应 {{.Table.Name}}（{{.Table.TableComment}}）。
+type {{.Table.ClassName}} struct {
+{{- range .Columns}}
+	{{export .JavaField}} {{.JavaType}} `gorm:"column:{{.ColumnName}}" json:"{{.JavaField}}"` // {{.ColumnComment}}
+{{- end}}
+}
+
+// TableName 指定数据库表名。
+func ({{.Table.ClassName}}) TableName() string { return "{{.Table.Name}}" }

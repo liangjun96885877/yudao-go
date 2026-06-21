@@ -1,0 +1,43 @@
+# yudao-go 开发环境依赖（MySQL + Redis）。
+# 使用独立项目名与端口，避免与现有容器冲突：
+#   docker compose -f deploy/docker-compose.yml up -d
+name: yudaogo-dev
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: yudao-go-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: "yudao_go"
+    ports:
+      - "13306:3306"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - yudao-go-mysql:/var/lib/mysql
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: yudao-go-redis
+    restart: unless-stopped
+    ports:
+      - "16381:6379"
+    volumes:
+      - yudao-go-redis:/data
+
+  # 链路追踪：Jaeger all-in-one（OTLP 接收 + 查询 UI）。
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    container_name: yudao-go-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "14317:4317"    # OTLP gRPC
+      - "14318:4318"    # OTLP HTTP
+
+volumes:
+  yudao-go-mysql:
+  yudao-go-redis:

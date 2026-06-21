@@ -1,0 +1,11 @@
+/bin/
+*.exe
+*.out
+*.log
+.idea/
+.vscode/
+.DS_Store
+/tmp/
+/docs/
+/web/node_modules/
+/web/dist/

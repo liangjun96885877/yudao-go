@@ -1,0 +1,17 @@
+-- {{.Table.ClassComment}} 菜单 SQL（由代码生成器生成；执行后在「菜单管理」刷新）
+-- 父菜单编号：{{.Table.ParentMenuID}}
+
+INSERT INTO system_menu
+  (name, permission, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, creator, create_time, updater, update_time, deleted)
+VALUES
+  ('{{.Table.ClassComment}}', '', 2, 0, {{.Table.ParentMenuID}}, '{{.Table.BusinessName}}', '', '{{.Table.ModuleName}}/{{.Table.BusinessName}}/index', '{{.Table.ClassName}}', 0, b'1', b'1', '1', NOW(), '1', NOW(), b'0');
+
+SET @menuId = LAST_INSERT_ID();
+
+INSERT INTO system_menu
+  (name, permission, type, sort, parent_id, status, visible, keep_alive, creator, create_time, updater, update_time, deleted)
+VALUES
+  ('{{.Table.ClassComment}}查询', '{{.Table.ModuleName}}:{{.Table.BusinessName}}:query',  3, 1, @menuId, 0, b'1', b'1', '1', NOW(), '1', NOW(), b'0'),
+  ('{{.Table.ClassComment}}创建', '{{.Table.ModuleName}}:{{.Table.BusinessName}}:create', 3, 2, @menuId, 0, b'1', b'1', '1', NOW(), '1', NOW(), b'0'),
+  ('{{.Table.ClassComment}}更新', '{{.Table.ModuleName}}:{{.Table.BusinessName}}:update', 3, 3, @menuId, 0, b'1', b'1', '1', NOW(), '1', NOW(), b'0'),
+  ('{{.Table.ClassComment}}删除', '{{.Table.ModuleName}}:{{.Table.BusinessName}}:delete', 3, 4, @menuId, 0, b'1', b'1', '1', NOW(), '1', NOW(), b'0');
